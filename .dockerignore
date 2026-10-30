@@ -1,0 +1,7 @@
+# Keep the build context minimal — tests and docs don't belong in the image
+*_test.go
+*.md
+Dockerfile
+docker-compose.yml
+.dockerignore
+.git

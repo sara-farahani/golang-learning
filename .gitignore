@@ -1,0 +1,66 @@
+# ================= Go build artifacts =================
+
+# Compiled binaries (local build output)
+gopulse
+gopulse.exe
+*.exe
+*.test
+*.out
+*.prof
+
+# Go workspace files
+go.work
+go.work.sum
+
+# Dependency cache directories (contain vendored code)
+vendor/
+
+# ================= Test & profiling output =================
+
+# Coverage profile
+coverage.out
+coverage.html
+*.cover
+
+# Profiling artifacts (CPU/memory heatmaps)
+*.pprof
+*.svg
+mem.profile
+cpu.profile
+mem.out
+
+# ================= IDE / editor cruft =================
+
+# VS Code
+.vscode/*
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains (GoLand, IntelliJ)
+.idea/
+*.iml
+
+# Vim / Emacs
+*.swp
+*.swo
+*~
+[#]*#
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# ================= Runtime & container artifacts =================
+
+# Log files
+*.log
+
+# Docker build leftovers (not committed)
+docker-compose.override.yml
+
+# Local environment files
+.env
+.env.local

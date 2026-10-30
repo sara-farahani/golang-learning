@@ -1,0 +1,9 @@
+services:
+  gopulse:
+    build: .
+    image: gopulse:latest
+    container_name: gopulse
+    restart: unless-stopped
+    init: true
+    ports:
+      - "8080:8080"
