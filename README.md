@@ -1,15 +1,16 @@
 # GoPulse: High-Throughput Concurrent Stream Engine
 
-> **In Plain English:** GoPulse is a **high-speed background task processing service** written in Go.
+> GoPulse is a **high-speed background task processing service** written in Go.
 > Think of it like a smart factory assembly line: when thousands of tasks (like user signups, payment webhooks, or log events) arrive every second, GoPulse buffers them, processes them across multiple worker threads in parallel without crashing the server, safely quarantines errors, and tracks live throughput.
 
-> **🎓 Project Scope:** GoPulse is an **educational / practice project** built to demonstrate real-world Go concurrency patterns — token-bucket rate limiting, bounded worker pools, dead-letter queues with backoff retry, lock-free telemetry, and graceful shutdown — end-to-end with Docker deployment. It intentionally uses only the Go standard library and keeps state in memory, so it is **not production-ready as-is** — treated as a solid foundation to extend toward one.
+> **🎓 Project Scope:** GoPulse is a practice project built to demonstrate real-world Go concurrency patterns — token-bucket rate limiting, bounded worker pools, dead-letter queues with backoff retry, lock-free telemetry, and graceful shutdown — end-to-end with Docker deployment. It intentionally uses only the Go standard library and keeps state in memory, so it is not production-ready as-is — treated as a solid foundation to extend toward one.
 
 ---
 
 ## ✨ Features
 
 ### Core Engine
+
 - ⚡ **Token-Bucket Rate Limiter** — burstable, non-blocking (`Allow()`) or blocking (`Wait()`) admission control with configurable refill rate & burst capacity.
 - 🧵 **Bounded Worker Pool** — fixed pool of concurrent goroutines pulling jobs from a buffered channel (no unbounded thread spawning).
 - 🔀 **Fan-Out / Fan-In Pipeline** — multi-stage multiplexing pattern built in.
@@ -18,20 +19,23 @@
 - 🛑 **Graceful Shutdown** — traps `SIGINT` / `SIGTERM`, drains in-flight jobs, exits with **zero data loss** and no goroutine leaks.
 
 ### Built-in Web Dashboard (no frontend framework needed)
+
 - 🌐 **Live control UI** at `http://localhost:8080` — served by a tiny embedded `net/http` server.
 - 📈 **Real-time stats** — processed, failed, DLQ count, active workers, avg latency (auto-refreshed).
 - 🚀 **Interactive controls** — enqueue single jobs, trigger 10-job bursts, inject poison pills into the DLQ from the browser.
 - 📜 **Live activity log** — streaming per-job execution log inside the page.
 
 ### REST API
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/` | GET | Web dashboard UI |
-| `/api/metrics` | GET | JSON snapshot of engine telemetry |
-| `/api/enqueue?type=normal` | GET | Enqueue a normal job (runs through the rate limiter) |
-| `/api/enqueue?type=poison` | GET | Inject a poison-pill job → lands in the DLQ |
+
+| Endpoint                   | Method | Description                                          |
+| -------------------------- | ------ | ---------------------------------------------------- |
+| `/`                        | GET    | Web dashboard UI                                     |
+| `/api/metrics`             | GET    | JSON snapshot of engine telemetry                    |
+| `/api/enqueue?type=normal` | GET    | Enqueue a normal job (runs through the rate limiter) |
+| `/api/enqueue?type=poison` | GET    | Inject a poison-pill job → lands in the DLQ          |
 
 ### Containerization
+
 - 🐳 **Multi-stage Dockerfile** — compiles a static, stripped binary (`-trimpath -ldflags="-s -w"`), runs on a minimal **Alpine 3.20** image (**~20 MB total**).
 - 👤 **Non-root container** — runs as a dedicated unprivileged user.
 - 🧩 **Docker Compose** — one command (`docker compose up`) to build, run, and expose the dashboard & API; `SIGTERM` → graceful shutdown wired end-to-end.
@@ -42,6 +46,7 @@
 ## What Does This Project Do?
 
 Imagine you run an online service (like Stripe, Uber, or an IoT system):
+
 1. **The Influx:** 1,000 tasks arrive per second (payments to verify, emails to send, or telemetry packets to parse).
 2. **The Risk:** If you create an unconstrained thread for each task, your computer runs out of RAM and crashes (an Out-Of-Memory panic). If you process them one-by-one, your system slows to a crawl.
 3. **The Solution (GoPulse):**
@@ -75,6 +80,7 @@ When you execute `go run cmd/gopulse/main.go`, you see the concurrent engine in 
 ---
 
 ## Technical Highlights & Go Concurrency Patterns
+
 - **Go Foundations**: Custom structs, enums via `iota`, pointer receivers, and modern sentinel error wrapping (`errors.Is`).
 - **CSP Channels & Goroutines**: Bounded worker pools, unbuffered vs buffered channels, directional channels (`chan<-`, `<-`).
 - **Pipelines**: Fan-Out and Fan-In multiplexing with worker pools.
@@ -153,27 +159,34 @@ docker compose down
 ### 🛠️ Option B: Run natively with Go
 
 ### 1. Run All Tests Across All Packages
+
 ```bash
 go test -v ./...
 ```
-*(Every single package contains full test suites: root, domain, ratelimit, dlq, metrics, and pipeline!)*
+
+_(Every single package contains full test suites: root, domain, ratelimit, dlq, metrics, and pipeline!)_
 
 ### 2. Run Race Detector (Thread Sanitizer)
+
 ```bash
 go test -v -race ./...
 ```
-*(Guarantees 100% thread safety with zero data races across all concurrent components!)*
+
+_(Guarantees 100% thread safety with zero data races across all concurrent components!)_
 
 ### 3. Run Benchmark Tests
+
 ```bash
 go test -v -bench=. -benchmem ./...
 ```
 
 ### 4. Run the Engine with Live Terminal Telemetry
+
 ```bash
 go run cmd/gopulse/main.go
 ```
-*(The embedded Web UI dashboard starts automatically at http://localhost:8080 — open it in your browser!)*
+
+_(The embedded Web UI dashboard starts automatically at http://localhost:8080 — open it in your browser!)_
 
 ---
 
